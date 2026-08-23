@@ -67,6 +67,7 @@ libc do sistema nem de um kernel hospedeiro durante a execucao.
 
 ```sh
 make              # compila o kernel e gera build/oak-os.iso
+make limbo        # gera ISO e disco QCOW2 para o Limbo/QEMU Mobile
 make test         # valida a estrutura ELF da imagem
 make run          # inicia QEMU com serial e disco RAW no terminal
 make run-gui      # inicia QEMU com framebuffer e janela grafica
@@ -77,6 +78,13 @@ make clean
 
 Para depurar, em outro terminal use `gdb build/acorn.elf`, execute `target
 remote :1234` e entao `continue`.
+
+### Limbo/QEMU Mobile
+
+Execute `make limbo`. Use `build/oakos-limbo.iso` como CD-ROM e, opcionalmente,
+`build/oakos-limbo-data.qcow2` como segundo disco. Configure arquitetura x86_64,
+chipset pc/i440FX, 512 MB de RAM e VGA padrao. O boot deve ser feito pela ISO;
+o segundo disco guarda os dados persistentes do filesystem.
 
 ## Arquitetura
 

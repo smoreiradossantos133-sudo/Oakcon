@@ -4,6 +4,8 @@ ISO_DIR := $(BUILD)/iso
 KERNEL := $(BUILD)/acorn.elf
 ISO := $(BUILD)/oak-os.iso
 DISK := $(BUILD)/oak-disk.img
+LIMBO_ISO := $(BUILD)/oakos-limbo.iso
+LIMBO_DISK := $(BUILD)/oakos-limbo-data.qcow2
 USER_ELF := $(BUILD)/user/init.elf
 USER_OBJ := $(BUILD)/user/init.o $(BUILD)/user/libc.o
 USER_BINARY_OBJ := $(BUILD)/user/init-elf.o
@@ -20,7 +22,7 @@ C_SOURCES := kernel/kernel.c kernel/serial.c kernel/vga.c kernel/framebuffer.c k
 ASM_SOURCES := boot/boot.S kernel/idt.S kernel/context.S
 OBJECTS := $(C_SOURCES:%.c=$(BUILD)/%.o) $(ASM_SOURCES:%.S=$(BUILD)/%.o) $(USER_BINARY_OBJ)
 
-.PHONY: all kernel iso run run-gui run-vnc stop-vnc debug test clean
+.PHONY: all kernel iso limbo run run-gui run-vnc stop-vnc debug test clean
 
 all: iso
 
@@ -61,6 +63,14 @@ iso: $(KERNEL) grub.cfg
 	cp $(KERNEL) $(ISO_DIR)/boot/acorn.elf
 	cp grub.cfg $(ISO_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
+
+limbo: iso $(DISK)
+	@command -v qemu-img >/dev/null || { echo "erro: qemu-img nao esta instalado" >&2; exit 1; }
+	@$(MAKE) -s stop-vnc
+	cp $(ISO) $(LIMBO_ISO)
+	qemu-img convert -U -f raw -O qcow2 $(DISK) $(LIMBO_DISK)
+	@echo "ISO Limbo: $(LIMBO_ISO)"
+	@echo "Disco persistente: $(LIMBO_DISK)"
 
 $(DISK):
 	@mkdir -p $(@D)
